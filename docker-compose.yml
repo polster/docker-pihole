@@ -4,7 +4,7 @@ services:
   pihole:
     restart: always
     container_name: pihole
-    image: diginc/pi-hole:arm
+    image: diginc/pi-hole-multiarch:debian_armhf
     volumes:
       - pihole_data:/etc/pihole
       - dnsmasq_data:/etc/dnsmasq.d
@@ -12,12 +12,29 @@ services:
       - ServerIP=${SERVER_IP}
       - DNS1=${UPSTREAM_DNS1}
       - DNS2=${UPSTREAM_DNS2}
+      - TZ=Europe/Zurich
     cap_add:
       - NET_ADMIN
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "80:80"
+    depends_on:
+      - nginx
+
+  nginx:
+    restart: always
+    container_name: nginx
+    image: tobi312/rpi-nginx
+    volumes:
+      - /home/zak/.ssl:/etc/nginx/ssl:ro
+      - /home/zak/.config/nginx:/etc/nginx/conf.d:ro
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcs"
+    links:
+      - pihole:pihole
+    networks:
+      - dockerpihole_default
 
 volumes:
   pihole_data:
