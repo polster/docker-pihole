@@ -18,8 +18,8 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-    depends_on:
-      - nginx
+    networks:
+      - dockerpihole_default
 
   nginx:
     restart: always
@@ -30,7 +30,7 @@ services:
       - /home/zak/.config/nginx:/etc/nginx/conf.d:ro
     ports:
       - "80:80/tcp"
-      - "443:443/tcs"
+      - "443:443/tcp"
     links:
       - pihole:pihole
     networks:
